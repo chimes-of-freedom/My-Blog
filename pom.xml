@@ -3,8 +3,9 @@
       @qq交流群 796794009
       @email 2449207463@qq.com
       @link http://13blog.site -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.site.blog.my.core</groupId>
@@ -18,8 +19,8 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.1.0</version>
-        <relativePath/>
+        <version>3.5.14</version>
+        <relativePath />
     </parent>
 
     <properties>
@@ -44,25 +45,23 @@
         <dependency>
             <groupId>org.mybatis.spring.boot</groupId>
             <artifactId>mybatis-spring-boot-starter</artifactId>
-            <version>3.0.2</version>
+            <version>3.0.5</version>
         </dependency>
         <!-- 验证码 -->
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-captcha</artifactId>
-            <version>5.8.7</version>
+            <version>5.8.44</version>
         </dependency>
-        <!-- commonmark core -->
         <dependency>
-            <groupId>com.atlassian.commonmark</groupId>
+            <groupId>org.commonmark</groupId>
             <artifactId>commonmark</artifactId>
-            <version>0.17.0</version>
+            <version>0.28.0</version>
         </dependency>
-        <!-- commonmark table -->
         <dependency>
-            <groupId>com.atlassian.commonmark</groupId>
+            <groupId>org.commonmark</groupId>
             <artifactId>commonmark-ext-gfm-tables</artifactId>
-            <version>0.17.0</version>
+            <version>0.28.0</version>
         </dependency>
         <dependency>
             <groupId>com.mysql</groupId>
@@ -84,9 +83,5 @@
             </plugin>
         </plugins>
     </build>
-    <!--  @author 13
-          @qq交流群 796794009
-          @email 2449207463@qq.com
-          @link http://13blog.site
-    -->
+
 </project>
