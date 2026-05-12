@@ -4,8 +4,9 @@ import java.io.Serializable;
 
 public class SimpleBlogListVO implements Serializable {
 
-    private Long blogId;
+    private static final long serialVersionUID = 1L;
 
+    private Long blogId;
     private String blogTitle;
 
     public Long getBlogId() {
@@ -23,4 +24,5 @@ public class SimpleBlogListVO implements Serializable {
     public void setBlogTitle(String blogTitle) {
         this.blogTitle = blogTitle;
     }
+
 }

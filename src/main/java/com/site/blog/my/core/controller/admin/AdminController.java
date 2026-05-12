@@ -2,38 +2,47 @@ package com.site.blog.my.core.controller.admin;
 
 import cn.hutool.captcha.ShearCaptcha;
 import com.site.blog.my.core.entity.AdminUser;
-import com.site.blog.my.core.service.*;
+import com.site.blog.my.core.service.AdminUserService;
+import com.site.blog.my.core.service.BlogService;
+import com.site.blog.my.core.service.CategoryService;
+import com.site.blog.my.core.service.CommentService;
+import com.site.blog.my.core.service.LinkService;
+import com.site.blog.my.core.service.TagService;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
-/**
- * @author 13
- * @qq交流群 796794009
- * @email 2449207463@qq.com
- * @link http://13blog.site
- */
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
 
-    @Resource
-    private AdminUserService adminUserService;
-    @Resource
-    private BlogService blogService;
-    @Resource
-    private CategoryService categoryService;
-    @Resource
-    private LinkService linkService;
-    @Resource
-    private TagService tagService;
-    @Resource
-    private CommentService commentService;
+    private final AdminUserService adminUserService;
+    private final BlogService blogService;
+    private final CategoryService categoryService;
+    private final LinkService linkService;
+    private final TagService tagService;
+    private final CommentService commentService;
 
+    public AdminController(AdminUserService adminUserService,
+                           BlogService blogService,
+                           CategoryService categoryService,
+                           LinkService linkService,
+                           TagService tagService,
+                           CommentService commentService) {
+        this.adminUserService = adminUserService;
+        this.blogService = blogService;
+        this.categoryService = categoryService;
+        this.linkService = linkService;
+        this.tagService = tagService;
+        this.commentService = commentService;
+    }
 
     @GetMapping({"/login"})
     public String login() {
@@ -73,8 +82,6 @@ public class AdminController {
         if (adminUser != null) {
             session.setAttribute("loginUser", adminUser.getNickName());
             session.setAttribute("loginUserId", adminUser.getAdminUserId());
-            //session过期时间设置为7200秒 即两小时
-            //session.setMaxInactiveInterval(60 * 60 * 2);
             return "redirect:/admin/index";
         } else {
             session.setAttribute("errorMsg", "登陆失败");
@@ -84,7 +91,7 @@ public class AdminController {
 
     @GetMapping("/profile")
     public String profile(HttpServletRequest request) {
-        Integer loginUserId = (int) request.getSession().getAttribute("loginUserId");
+        Integer loginUserId = (Integer) request.getSession().getAttribute("loginUserId");
         AdminUser adminUser = adminUserService.getUserDetailById(loginUserId);
         if (adminUser == null) {
             return "admin/login";
@@ -97,14 +104,14 @@ public class AdminController {
 
     @PostMapping("/profile/password")
     @ResponseBody
-    public String passwordUpdate(HttpServletRequest request, @RequestParam("originalPassword") String originalPassword,
+    public String passwordUpdate(HttpServletRequest request,
+                                 @RequestParam("originalPassword") String originalPassword,
                                  @RequestParam("newPassword") String newPassword) {
         if (!StringUtils.hasText(originalPassword) || !StringUtils.hasText(newPassword)) {
             return "参数不能为空";
         }
-        Integer loginUserId = (int) request.getSession().getAttribute("loginUserId");
+        Integer loginUserId = (Integer) request.getSession().getAttribute("loginUserId");
         if (adminUserService.updatePassword(loginUserId, originalPassword, newPassword)) {
-            //修改成功后清空session中的数据，前端控制跳转至登录页
             request.getSession().removeAttribute("loginUserId");
             request.getSession().removeAttribute("loginUser");
             request.getSession().removeAttribute("errorMsg");
@@ -116,12 +123,13 @@ public class AdminController {
 
     @PostMapping("/profile/name")
     @ResponseBody
-    public String nameUpdate(HttpServletRequest request, @RequestParam("loginUserName") String loginUserName,
+    public String nameUpdate(HttpServletRequest request,
+                             @RequestParam("loginUserName") String loginUserName,
                              @RequestParam("nickName") String nickName) {
         if (!StringUtils.hasText(loginUserName) || !StringUtils.hasText(nickName)) {
             return "参数不能为空";
         }
-        Integer loginUserId = (int) request.getSession().getAttribute("loginUserId");
+        Integer loginUserId = (Integer) request.getSession().getAttribute("loginUserId");
         if (adminUserService.updateName(loginUserId, loginUserName, nickName)) {
             return "success";
         } else {
@@ -136,4 +144,5 @@ public class AdminController {
         request.getSession().removeAttribute("errorMsg");
         return "admin/login";
     }
+
 }

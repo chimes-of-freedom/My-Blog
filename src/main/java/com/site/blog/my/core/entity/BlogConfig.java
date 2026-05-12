@@ -3,12 +3,10 @@ package com.site.blog.my.core.entity;
 import java.util.Date;
 
 public class BlogConfig {
+
     private String configName;
-
     private String configValue;
-
     private Date createTime;
-
     private Date updateTime;
 
     public String getConfigName() {
@@ -45,15 +43,12 @@ public class BlogConfig {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getClass().getSimpleName());
-        sb.append(" [");
-        sb.append("Hash = ").append(hashCode());
-        sb.append(", configName=").append(configName);
-        sb.append(", configValue=").append(configValue);
-        sb.append(", createTime=").append(createTime);
-        sb.append(", updateTime=").append(updateTime);
-        sb.append("]");
-        return sb.toString();
+        return "BlogConfig{" +
+                "configName='" + configName + '\'' +
+                ", configValue='" + configValue + '\'' +
+                ", createTime=" + createTime +
+                ", updateTime=" + updateTime +
+                '}';
     }
+
 }

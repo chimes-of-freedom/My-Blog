@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 public interface BlogMapper {
+
     int deleteByPrimaryKey(Long blogId);
 
     int insert(Blog record);
@@ -35,6 +36,8 @@ public interface BlogMapper {
 
     Blog selectBySubUrl(String subUrl);
 
-    int updateBlogCategorys(@Param("categoryName") String categoryName, @Param("categoryId") Integer categoryId, @Param("ids")Integer[] ids);
+    int updateBlogCategorys(@Param("categoryName") String categoryName,
+                            @Param("categoryId") Integer categoryId,
+                            @Param("ids") Integer[] ids);
 
 }

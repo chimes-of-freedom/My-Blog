@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 public interface BlogTagRelationMapper {
+
     int deleteByPrimaryKey(Long relationId);
 
     int insert(BlogTagRelation record);
@@ -25,4 +26,5 @@ public interface BlogTagRelationMapper {
     int batchInsert(@Param("relationList") List<BlogTagRelation> blogTagRelationList);
 
     int deleteByBlogId(Long blogId);
+
 }

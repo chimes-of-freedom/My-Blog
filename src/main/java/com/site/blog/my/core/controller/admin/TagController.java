@@ -2,29 +2,31 @@ package com.site.blog.my.core.controller.admin;
 
 import com.site.blog.my.core.service.TagService;
 import com.site.blog.my.core.util.PageQueryUtil;
+import com.site.blog.my.core.util.PageResult;
 import com.site.blog.my.core.util.Result;
 import com.site.blog.my.core.util.ResultGenerator;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
 
-/**
- * @author 13
- * @qq交流群 796794009
- * @email 2449207463@qq.com
- * @link http://13blog.site
- */
 @Controller
 @RequestMapping("/admin")
 public class TagController {
 
-    @Resource
-    private TagService tagService;
+    private final TagService tagService;
+
+    public TagController(TagService tagService) {
+        this.tagService = tagService;
+    }
 
     @GetMapping("/tags")
     public String tagPage(HttpServletRequest request) {
@@ -34,7 +36,7 @@ public class TagController {
 
     @GetMapping("/tags/list")
     @ResponseBody
-    public Result list(@RequestParam Map<String, Object> params) {
+    public Result<PageResult> list(@RequestParam Map<String, Object> params) {
         if (ObjectUtils.isEmpty(params.get("page")) || ObjectUtils.isEmpty(params.get("limit"))) {
             return ResultGenerator.genFailResult("参数异常！");
         }
@@ -42,10 +44,9 @@ public class TagController {
         return ResultGenerator.genSuccessResult(tagService.getBlogTagPage(pageUtil));
     }
 
-
     @PostMapping("/tags/save")
     @ResponseBody
-    public Result save(@RequestParam("tagName") String tagName) {
+    public Result<Void> save(@RequestParam("tagName") String tagName) {
         if (!StringUtils.hasText(tagName)) {
             return ResultGenerator.genFailResult("参数异常！");
         }
@@ -58,7 +59,7 @@ public class TagController {
 
     @PostMapping("/tags/delete")
     @ResponseBody
-    public Result delete(@RequestBody Integer[] ids) {
+    public Result<Void> delete(@RequestBody Integer[] ids) {
         if (ids.length < 1) {
             return ResultGenerator.genFailResult("参数异常！");
         }
@@ -68,6 +69,5 @@ public class TagController {
             return ResultGenerator.genFailResult("有关联数据请勿强行删除");
         }
     }
-
 
 }

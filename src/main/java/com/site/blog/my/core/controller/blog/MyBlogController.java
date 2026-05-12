@@ -4,58 +4,61 @@ import cn.hutool.captcha.ShearCaptcha;
 import com.site.blog.my.core.controller.vo.BlogDetailVO;
 import com.site.blog.my.core.entity.BlogComment;
 import com.site.blog.my.core.entity.BlogLink;
-import com.site.blog.my.core.service.*;
-import com.site.blog.my.core.util.*;
+import com.site.blog.my.core.service.BlogService;
+import com.site.blog.my.core.service.CategoryService;
+import com.site.blog.my.core.service.CommentService;
+import com.site.blog.my.core.service.ConfigService;
+import com.site.blog.my.core.service.LinkService;
+import com.site.blog.my.core.service.TagService;
+import com.site.blog.my.core.util.MyBlogUtils;
+import com.site.blog.my.core.util.PageResult;
+import com.site.blog.my.core.util.PatternUtil;
+import com.site.blog.my.core.util.Result;
+import com.site.blog.my.core.util.ResultGenerator;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @author 13
- * @qq交流群 796794009
- * @email 2449207463@qq.com
- * @link http://13blog.site
- */
 @Controller
 public class MyBlogController {
 
-    //public static String theme = "default";
-    //public static String theme = "yummy-jekyll";
     public static String theme = "amaze";
-    @Resource
-    private BlogService blogService;
-    @Resource
-    private TagService tagService;
-    @Resource
-    private LinkService linkService;
-    @Resource
-    private CommentService commentService;
-    @Resource
-    private ConfigService configService;
-    @Resource
-    private CategoryService categoryService;
 
-    /**
-     * 首页
-     *
-     * @return
-     */
+    private final BlogService blogService;
+    private final TagService tagService;
+    private final LinkService linkService;
+    private final CommentService commentService;
+    private final ConfigService configService;
+    private final CategoryService categoryService;
+
+    public MyBlogController(BlogService blogService,
+                            TagService tagService,
+                            LinkService linkService,
+                            CommentService commentService,
+                            ConfigService configService,
+                            CategoryService categoryService) {
+        this.blogService = blogService;
+        this.tagService = tagService;
+        this.linkService = linkService;
+        this.commentService = commentService;
+        this.configService = configService;
+        this.categoryService = categoryService;
+    }
+
     @GetMapping({"/", "/index", "index.html"})
     public String index(HttpServletRequest request) {
         return this.page(request, 1);
     }
 
-    /**
-     * 首页 分页数据
-     *
-     * @return
-     */
     @GetMapping({"/page/{pageNum}"})
     public String page(HttpServletRequest request, @PathVariable("pageNum") int pageNum) {
         PageResult blogPageResult = blogService.getBlogsForIndexPage(pageNum);
@@ -71,11 +74,6 @@ public class MyBlogController {
         return "blog/" + theme + "/index";
     }
 
-    /**
-     * Categories页面(包括分类数据和标签数据)
-     *
-     * @return
-     */
     @GetMapping({"/categories"})
     public String categories(HttpServletRequest request) {
         request.setAttribute("hotTags", tagService.getBlogTagCountForIndex());
@@ -85,40 +83,30 @@ public class MyBlogController {
         return "blog/" + theme + "/category";
     }
 
-    /**
-     * 详情页
-     *
-     * @return
-     */
     @GetMapping({"/blog/{blogId}", "/article/{blogId}"})
-    public String detail(HttpServletRequest request, @PathVariable("blogId") Long blogId, @RequestParam(value = "commentPage", required = false, defaultValue = "1") Integer commentPage) {
+    public String detail(HttpServletRequest request,
+                         @PathVariable("blogId") Long blogId,
+                         @RequestParam(value = "commentPage", required = false, defaultValue = "1") Integer commentPage) {
         BlogDetailVO blogDetailVO = blogService.getBlogDetail(blogId);
         if (blogDetailVO != null) {
             request.setAttribute("blogDetailVO", blogDetailVO);
-            request.setAttribute("commentPageResult", commentService.getCommentPageByBlogIdAndPageNum(blogId, commentPage));
+            request.setAttribute("commentPageResult",
+                    commentService.getCommentPageByBlogIdAndPageNum(blogId, commentPage));
         }
         request.setAttribute("pageName", "详情");
         request.setAttribute("configurations", configService.getAllConfigs());
         return "blog/" + theme + "/detail";
     }
 
-    /**
-     * 标签列表页
-     *
-     * @return
-     */
     @GetMapping({"/tag/{tagName}"})
     public String tag(HttpServletRequest request, @PathVariable("tagName") String tagName) {
         return tag(request, tagName, 1);
     }
 
-    /**
-     * 标签列表页
-     *
-     * @return
-     */
     @GetMapping({"/tag/{tagName}/{page}"})
-    public String tag(HttpServletRequest request, @PathVariable("tagName") String tagName, @PathVariable("page") Integer page) {
+    public String tag(HttpServletRequest request,
+                      @PathVariable("tagName") String tagName,
+                      @PathVariable("page") Integer page) {
         PageResult blogPageResult = blogService.getBlogsPageByTag(tagName, page);
         request.setAttribute("blogPageResult", blogPageResult);
         request.setAttribute("pageName", "标签");
@@ -131,23 +119,15 @@ public class MyBlogController {
         return "blog/" + theme + "/list";
     }
 
-    /**
-     * 分类列表页
-     *
-     * @return
-     */
     @GetMapping({"/category/{categoryName}"})
     public String category(HttpServletRequest request, @PathVariable("categoryName") String categoryName) {
         return category(request, categoryName, 1);
     }
 
-    /**
-     * 分类列表页
-     *
-     * @return
-     */
     @GetMapping({"/category/{categoryName}/{page}"})
-    public String category(HttpServletRequest request, @PathVariable("categoryName") String categoryName, @PathVariable("page") Integer page) {
+    public String category(HttpServletRequest request,
+                           @PathVariable("categoryName") String categoryName,
+                           @PathVariable("page") Integer page) {
         PageResult blogPageResult = blogService.getBlogsPageByCategory(categoryName, page);
         request.setAttribute("blogPageResult", blogPageResult);
         request.setAttribute("pageName", "分类");
@@ -160,23 +140,15 @@ public class MyBlogController {
         return "blog/" + theme + "/list";
     }
 
-    /**
-     * 搜索列表页
-     *
-     * @return
-     */
     @GetMapping({"/search/{keyword}"})
     public String search(HttpServletRequest request, @PathVariable("keyword") String keyword) {
         return search(request, keyword, 1);
     }
 
-    /**
-     * 搜索列表页
-     *
-     * @return
-     */
     @GetMapping({"/search/{keyword}/{page}"})
-    public String search(HttpServletRequest request, @PathVariable("keyword") String keyword, @PathVariable("page") Integer page) {
+    public String search(HttpServletRequest request,
+                         @PathVariable("keyword") String keyword,
+                         @PathVariable("page") Integer page) {
         PageResult blogPageResult = blogService.getBlogsPageBySearch(keyword, page);
         request.setAttribute("blogPageResult", blogPageResult);
         request.setAttribute("pageName", "搜索");
@@ -189,18 +161,11 @@ public class MyBlogController {
         return "blog/" + theme + "/list";
     }
 
-
-    /**
-     * 友情链接页
-     *
-     * @return
-     */
     @GetMapping({"/link"})
     public String link(HttpServletRequest request) {
         request.setAttribute("pageName", "友情链接");
         Map<Byte, List<BlogLink>> linkMap = linkService.getLinksForLinkPage();
         if (linkMap != null) {
-            //判断友链类别并封装数据 0-友链 1-推荐 2-个人网站
             if (linkMap.containsKey((byte) 0)) {
                 request.setAttribute("favoriteLinks", linkMap.get((byte) 0));
             }
@@ -215,15 +180,17 @@ public class MyBlogController {
         return "blog/" + theme + "/link";
     }
 
-    /**
-     * 评论操作
-     */
     @PostMapping(value = "/blog/comment")
     @ResponseBody
-    public Result comment(HttpServletRequest request, HttpSession session,
-                          @RequestParam Long blogId, @RequestParam String verifyCode,
-                          @RequestParam String commentator, @RequestParam String email,
-                          @RequestParam String websiteUrl, @RequestParam String commentBody) {
+    public Result<Boolean> comment(
+            HttpServletRequest request,
+            HttpSession session,
+            @RequestParam Long blogId,
+            @RequestParam String verifyCode,
+            @RequestParam String commentator,
+            @RequestParam String email,
+            @RequestParam String websiteUrl,
+            @RequestParam String commentBody) {
         if (!StringUtils.hasText(verifyCode)) {
             return ResultGenerator.genFailResult("验证码不能为空");
         }
@@ -264,11 +231,6 @@ public class MyBlogController {
         return ResultGenerator.genSuccessResult(commentService.addComment(comment));
     }
 
-    /**
-     * 关于页面 以及其他配置了subUrl的文章页
-     *
-     * @return
-     */
     @GetMapping({"/{subUrl}"})
     public String detail(HttpServletRequest request, @PathVariable("subUrl") String subUrl) {
         BlogDetailVO blogDetailVO = blogService.getBlogDetailBySubUrl(subUrl);
@@ -281,4 +243,5 @@ public class MyBlogController {
             return "error/error_400";
         }
     }
+
 }

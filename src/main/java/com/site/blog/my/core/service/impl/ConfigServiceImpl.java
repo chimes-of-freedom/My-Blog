@@ -3,7 +3,6 @@ package com.site.blog.my.core.service.impl;
 import com.site.blog.my.core.dao.BlogConfigMapper;
 import com.site.blog.my.core.entity.BlogConfig;
 import com.site.blog.my.core.service.ConfigService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -14,8 +13,12 @@ import java.util.stream.Collectors;
 
 @Service
 public class ConfigServiceImpl implements ConfigService {
-    @Autowired
-    private BlogConfigMapper configMapper;
+
+    private final BlogConfigMapper configMapper;
+
+    public ConfigServiceImpl(BlogConfigMapper configMapper) {
+        this.configMapper = configMapper;
+    }
 
     public static final String websiteName = "personal blog";
     public static final String websiteDescription = "personal blog是SpringBoot2+Thymeleaf+Mybatis建造的个人博客网站.SpringBoot实战博客源码.个人博客搭建";
@@ -45,9 +48,9 @@ public class ConfigServiceImpl implements ConfigService {
 
     @Override
     public Map<String, String> getAllConfigs() {
-        //获取所有的map并封装为map
         List<BlogConfig> blogConfigs = configMapper.selectAll();
-        Map<String, String> configMap = blogConfigs.stream().collect(Collectors.toMap(BlogConfig::getConfigName, BlogConfig::getConfigValue));
+        Map<String, String> configMap = blogConfigs.stream()
+                .collect(Collectors.toMap(BlogConfig::getConfigName, BlogConfig::getConfigValue));
         for (Map.Entry<String, String> config : configMap.entrySet()) {
             if ("websiteName".equals(config.getKey()) && !StringUtils.hasText(config.getValue())) {
                 config.setValue(websiteName);
@@ -88,4 +91,5 @@ public class ConfigServiceImpl implements ConfigService {
         }
         return configMap;
     }
+
 }

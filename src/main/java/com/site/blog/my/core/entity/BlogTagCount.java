@@ -1,12 +1,10 @@
 package com.site.blog.my.core.entity;
 
 public class BlogTagCount {
+
     private Integer tagId;
-
     private String tagName;
-
     private Integer tagCount;
-
 
     public Integer getTagId() {
         return tagId;
@@ -31,4 +29,5 @@ public class BlogTagCount {
     public void setTagCount(Integer tagCount) {
         this.tagCount = tagCount;
     }
+
 }

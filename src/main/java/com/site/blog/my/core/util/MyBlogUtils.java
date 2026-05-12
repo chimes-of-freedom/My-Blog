@@ -4,16 +4,13 @@ import org.springframework.util.StringUtils;
 
 import java.net.URI;
 
-/**
- * @author 13
- */
 public class MyBlogUtils {
 
     public static URI getHost(URI uri) {
         URI effectiveURI = null;
         try {
             effectiveURI = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), null, null, null);
-        } catch (Throwable var4) {
+        } catch (Throwable ignored) {
             effectiveURI = null;
         }
         return effectiveURI;
@@ -35,7 +32,7 @@ public class MyBlogUtils {
         value = value.replaceAll("let", "1et");
         value = value.replaceAll("function", "functi0n");
         value = value.replaceAll("return", "retu1n");
-        value = value.replaceAll("$", "");
+        value = value.replaceAll("\\$", "");
         value = value.replaceAll("document", "d0cument");
         value = value.replaceAll("const", "c0nst");
         value = value.replaceAll("eval\\((.*)\\)", "");
@@ -53,4 +50,5 @@ public class MyBlogUtils {
         value = value.replaceAll("tb", "tb0");
         return value;
     }
+
 }

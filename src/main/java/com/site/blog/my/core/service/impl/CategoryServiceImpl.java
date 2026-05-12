@@ -6,7 +6,6 @@ import com.site.blog.my.core.entity.BlogCategory;
 import com.site.blog.my.core.service.CategoryService;
 import com.site.blog.my.core.util.PageQueryUtil;
 import com.site.blog.my.core.util.PageResult;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,17 +14,19 @@ import java.util.List;
 @Service
 public class CategoryServiceImpl implements CategoryService {
 
-    @Autowired
-    private BlogCategoryMapper blogCategoryMapper;
-    @Autowired
-    private BlogMapper blogMapper;
+    private final BlogCategoryMapper blogCategoryMapper;
+    private final BlogMapper blogMapper;
+
+    public CategoryServiceImpl(BlogCategoryMapper blogCategoryMapper, BlogMapper blogMapper) {
+        this.blogCategoryMapper = blogCategoryMapper;
+        this.blogMapper = blogMapper;
+    }
 
     @Override
     public PageResult getBlogCategoryPage(PageQueryUtil pageUtil) {
         List<BlogCategory> categoryList = blogCategoryMapper.findCategoryList(pageUtil);
         int total = blogCategoryMapper.getTotalCategories(pageUtil);
-        PageResult pageResult = new PageResult(categoryList, total, pageUtil.getLimit(), pageUtil.getPage());
-        return pageResult;
+        return new PageResult(categoryList, total, pageUtil.getLimit(), pageUtil.getPage());
     }
 
     @Override
@@ -52,7 +53,6 @@ public class CategoryServiceImpl implements CategoryService {
         if (blogCategory != null) {
             blogCategory.setCategoryIcon(categoryIcon);
             blogCategory.setCategoryName(categoryName);
-            //修改分类实体
             blogMapper.updateBlogCategorys(categoryName, blogCategory.getCategoryId(), new Integer[]{categoryId});
             return blogCategoryMapper.updateByPrimaryKeySelective(blogCategory) > 0;
         }
@@ -65,9 +65,7 @@ public class CategoryServiceImpl implements CategoryService {
         if (ids.length < 1) {
             return false;
         }
-        //修改tb_blog表
         blogMapper.updateBlogCategorys("默认分类", 0, ids);
-        //删除分类数据
         return blogCategoryMapper.deleteBatch(ids) > 0;
     }
 

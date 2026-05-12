@@ -8,12 +8,6 @@ import java.util.List;
 
 public interface TagService {
 
-    /**
-     * 查询标签的分页数据
-     *
-     * @param pageUtil
-     * @return
-     */
     PageResult getBlogTagPage(PageQueryUtil pageUtil);
 
     int getTotalTags();
@@ -23,4 +17,5 @@ public interface TagService {
     Boolean deleteBatch(Integer[] ids);
 
     List<BlogTagCount> getBlogTagCountForIndex();
+
 }

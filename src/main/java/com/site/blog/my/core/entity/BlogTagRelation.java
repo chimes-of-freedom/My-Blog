@@ -3,12 +3,10 @@ package com.site.blog.my.core.entity;
 import java.util.Date;
 
 public class BlogTagRelation {
+
     private Long relationId;
-
     private Long blogId;
-
     private Integer tagId;
-
     private Date createTime;
 
     public Long getRelationId() {
@@ -45,15 +43,12 @@ public class BlogTagRelation {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getClass().getSimpleName());
-        sb.append(" [");
-        sb.append("Hash = ").append(hashCode());
-        sb.append(", relationId=").append(relationId);
-        sb.append(", blogId=").append(blogId);
-        sb.append(", tagId=").append(tagId);
-        sb.append(", createTime=").append(createTime);
-        sb.append("]");
-        return sb.toString();
+        return "BlogTagRelation{" +
+                "relationId=" + relationId +
+                ", blogId=" + blogId +
+                ", tagId=" + tagId +
+                ", createTime=" + createTime +
+                '}';
     }
+
 }

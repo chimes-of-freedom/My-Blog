@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 public interface BlogCategoryMapper {
+
     int deleteByPrimaryKey(Integer categoryId);
 
     int insert(BlogCategory record);
@@ -28,4 +29,5 @@ public interface BlogCategoryMapper {
     int getTotalCategories(PageQueryUtil pageUtil);
 
     int deleteBatch(Integer[] ids);
+
 }

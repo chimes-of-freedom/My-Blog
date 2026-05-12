@@ -2,33 +2,35 @@ package com.site.blog.my.core.controller.admin;
 
 import com.site.blog.my.core.service.CommentService;
 import com.site.blog.my.core.util.PageQueryUtil;
+import com.site.blog.my.core.util.PageResult;
 import com.site.blog.my.core.util.Result;
 import com.site.blog.my.core.util.ResultGenerator;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
 
-/**
- * @author 13
- * @qq交流群 796794009
- * @email 2449207463@qq.com
- * @link http://13blog.site
- */
 @Controller
 @RequestMapping("/admin")
 public class CommentController {
 
-    @Resource
-    private CommentService commentService;
+    private final CommentService commentService;
+
+    public CommentController(CommentService commentService) {
+        this.commentService = commentService;
+    }
 
     @GetMapping("/comments/list")
     @ResponseBody
-    public Result list(@RequestParam Map<String, Object> params) {
+    public Result<PageResult> list(@RequestParam Map<String, Object> params) {
         if (ObjectUtils.isEmpty(params.get("page")) || ObjectUtils.isEmpty(params.get("limit"))) {
             return ResultGenerator.genFailResult("参数异常！");
         }
@@ -38,7 +40,7 @@ public class CommentController {
 
     @PostMapping("/comments/checkDone")
     @ResponseBody
-    public Result checkDone(@RequestBody Integer[] ids) {
+    public Result<Void> checkDone(@RequestBody Integer[] ids) {
         if (ids.length < 1) {
             return ResultGenerator.genFailResult("参数异常！");
         }
@@ -51,8 +53,9 @@ public class CommentController {
 
     @PostMapping("/comments/reply")
     @ResponseBody
-    public Result checkDone(@RequestParam("commentId") Long commentId,
-                            @RequestParam("replyBody") String replyBody) {
+    public Result<Void> reply(
+            @RequestParam("commentId") Long commentId,
+            @RequestParam("replyBody") String replyBody) {
         if (commentId == null || commentId < 1 || !StringUtils.hasText(replyBody)) {
             return ResultGenerator.genFailResult("参数异常！");
         }
@@ -65,7 +68,7 @@ public class CommentController {
 
     @PostMapping("/comments/delete")
     @ResponseBody
-    public Result delete(@RequestBody Integer[] ids) {
+    public Result<Void> delete(@RequestBody Integer[] ids) {
         if (ids.length < 1) {
             return ResultGenerator.genFailResult("参数异常！");
         }
@@ -77,10 +80,9 @@ public class CommentController {
     }
 
     @GetMapping("/comments")
-    public String list(HttpServletRequest request) {
+    public String commentPage(HttpServletRequest request) {
         request.setAttribute("path", "comments");
         return "admin/comment";
     }
-
 
 }

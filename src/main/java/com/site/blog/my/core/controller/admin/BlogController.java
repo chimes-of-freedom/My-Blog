@@ -6,15 +6,21 @@ import com.site.blog.my.core.service.BlogService;
 import com.site.blog.my.core.service.CategoryService;
 import com.site.blog.my.core.util.MyBlogUtils;
 import com.site.blog.my.core.util.PageQueryUtil;
+import com.site.blog.my.core.util.PageResult;
 import com.site.blog.my.core.util.Result;
 import com.site.blog.my.core.util.ResultGenerator;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.File;
@@ -27,31 +33,27 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Random;
 
-/**
- * @author 13
- * @qq交流群 796794009
- * @email 2449207463@qq.com
- * @link http://13blog.site
- */
 @Controller
 @RequestMapping("/admin")
 public class BlogController {
 
-    @Resource
-    private BlogService blogService;
-    @Resource
-    private CategoryService categoryService;
+    private final BlogService blogService;
+    private final CategoryService categoryService;
+
+    public BlogController(BlogService blogService, CategoryService categoryService) {
+        this.blogService = blogService;
+        this.categoryService = categoryService;
+    }
 
     @GetMapping("/blogs/list")
     @ResponseBody
-    public Result list(@RequestParam Map<String, Object> params) {
+    public Result<PageResult> list(@RequestParam Map<String, Object> params) {
         if (ObjectUtils.isEmpty(params.get("page")) || ObjectUtils.isEmpty(params.get("limit"))) {
             return ResultGenerator.genFailResult("参数异常！");
         }
         PageQueryUtil pageUtil = new PageQueryUtil(params);
         return ResultGenerator.genSuccessResult(blogService.getBlogsPage(pageUtil));
     }
-
 
     @GetMapping("/blogs")
     public String list(HttpServletRequest request) {
@@ -80,14 +82,15 @@ public class BlogController {
 
     @PostMapping("/blogs/save")
     @ResponseBody
-    public Result save(@RequestParam("blogTitle") String blogTitle,
-                       @RequestParam(name = "blogSubUrl", required = false) String blogSubUrl,
-                       @RequestParam("blogCategoryId") Integer blogCategoryId,
-                       @RequestParam("blogTags") String blogTags,
-                       @RequestParam("blogContent") String blogContent,
-                       @RequestParam("blogCoverImage") String blogCoverImage,
-                       @RequestParam("blogStatus") Byte blogStatus,
-                       @RequestParam("enableComment") Byte enableComment) {
+    public Result<Void> save(
+            @RequestParam("blogTitle") String blogTitle,
+            @RequestParam(value = "blogSubUrl", required = false) String blogSubUrl,
+            @RequestParam("blogCategoryId") Integer blogCategoryId,
+            @RequestParam("blogTags") String blogTags,
+            @RequestParam("blogContent") String blogContent,
+            @RequestParam("blogCoverImage") String blogCoverImage,
+            @RequestParam("blogStatus") Byte blogStatus,
+            @RequestParam("enableComment") Byte enableComment) {
         if (!StringUtils.hasText(blogTitle)) {
             return ResultGenerator.genFailResult("请输入文章标题");
         }
@@ -131,15 +134,16 @@ public class BlogController {
 
     @PostMapping("/blogs/update")
     @ResponseBody
-    public Result update(@RequestParam("blogId") Long blogId,
-                         @RequestParam("blogTitle") String blogTitle,
-                         @RequestParam(name = "blogSubUrl", required = false) String blogSubUrl,
-                         @RequestParam("blogCategoryId") Integer blogCategoryId,
-                         @RequestParam("blogTags") String blogTags,
-                         @RequestParam("blogContent") String blogContent,
-                         @RequestParam("blogCoverImage") String blogCoverImage,
-                         @RequestParam("blogStatus") Byte blogStatus,
-                         @RequestParam("enableComment") Byte enableComment) {
+    public Result<Void> update(
+            @RequestParam("blogId") Long blogId,
+            @RequestParam("blogTitle") String blogTitle,
+            @RequestParam(value = "blogSubUrl", required = false) String blogSubUrl,
+            @RequestParam("blogCategoryId") Integer blogCategoryId,
+            @RequestParam("blogTags") String blogTags,
+            @RequestParam("blogContent") String blogContent,
+            @RequestParam("blogCoverImage") String blogCoverImage,
+            @RequestParam("blogStatus") Byte blogStatus,
+            @RequestParam("enableComment") Byte enableComment) {
         if (!StringUtils.hasText(blogTitle)) {
             return ResultGenerator.genFailResult("请输入文章标题");
         }
@@ -183,19 +187,22 @@ public class BlogController {
     }
 
     @PostMapping("/blogs/md/uploadfile")
-    public void uploadFileByEditormd(HttpServletRequest request,
-                                     HttpServletResponse response,
-                                     @RequestParam(name = "editormd-image-file", required = true)
-                                             MultipartFile file) throws IOException, URISyntaxException {
+    public void uploadFileByEditormd(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @RequestParam("editormd-image-file") MultipartFile file)
+            throws IOException, URISyntaxException {
         String fileName = file.getOriginalFilename();
+        if (fileName == null) {
+            response.getWriter().write("{\"success\":0}");
+            return;
+        }
         String suffixName = fileName.substring(fileName.lastIndexOf("."));
-        //生成文件名称通用方法
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
         Random r = new Random();
         StringBuilder tempName = new StringBuilder();
         tempName.append(sdf.format(new Date())).append(r.nextInt(100)).append(suffixName);
         String newFileName = tempName.toString();
-        //创建文件
         File destFile = new File(Constants.FILE_UPLOAD_DIC + newFileName);
         String fileUrl = MyBlogUtils.getHost(new URI(request.getRequestURL() + "")) + "/upload/" + newFileName;
         File fileDirectory = new File(Constants.FILE_UPLOAD_DIC);
@@ -218,7 +225,7 @@ public class BlogController {
 
     @PostMapping("/blogs/delete")
     @ResponseBody
-    public Result delete(@RequestBody Integer[] ids) {
+    public Result<Void> delete(@RequestBody Integer[] ids) {
         if (ids.length < 1) {
             return ResultGenerator.genFailResult("参数异常！");
         }

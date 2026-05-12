@@ -5,7 +5,6 @@ import com.site.blog.my.core.entity.BlogLink;
 import com.site.blog.my.core.service.LinkService;
 import com.site.blog.my.core.util.PageQueryUtil;
 import com.site.blog.my.core.util.PageResult;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -16,15 +15,17 @@ import java.util.stream.Collectors;
 @Service
 public class LinkServiceImpl implements LinkService {
 
-    @Autowired
-    private BlogLinkMapper blogLinkMapper;
+    private final BlogLinkMapper blogLinkMapper;
+
+    public LinkServiceImpl(BlogLinkMapper blogLinkMapper) {
+        this.blogLinkMapper = blogLinkMapper;
+    }
 
     @Override
     public PageResult getBlogLinkPage(PageQueryUtil pageUtil) {
         List<BlogLink> links = blogLinkMapper.findLinkList(pageUtil);
         int total = blogLinkMapper.getTotalLinks(pageUtil);
-        PageResult pageResult = new PageResult(links, total, pageUtil.getLimit(), pageUtil.getPage());
-        return pageResult;
+        return new PageResult(links, total, pageUtil.getLimit(), pageUtil.getPage());
     }
 
     @Override
@@ -54,13 +55,11 @@ public class LinkServiceImpl implements LinkService {
 
     @Override
     public Map<Byte, List<BlogLink>> getLinksForLinkPage() {
-        //获取所有链接数据
         List<BlogLink> links = blogLinkMapper.findLinkList(null);
         if (!CollectionUtils.isEmpty(links)) {
-            //根据type进行分组
-            Map<Byte, List<BlogLink>> linksMap = links.stream().collect(Collectors.groupingBy(BlogLink::getLinkType));
-            return linksMap;
+            return links.stream().collect(Collectors.groupingBy(BlogLink::getLinkType));
         }
         return null;
     }
+
 }

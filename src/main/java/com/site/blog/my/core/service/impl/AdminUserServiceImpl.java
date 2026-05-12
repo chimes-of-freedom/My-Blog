@@ -6,17 +6,20 @@ import com.site.blog.my.core.service.AdminUserService;
 import com.site.blog.my.core.util.MD5Util;
 import org.springframework.stereotype.Service;
 
-import jakarta.annotation.Resource;
+import java.nio.charset.StandardCharsets;
 
 @Service
 public class AdminUserServiceImpl implements AdminUserService {
 
-    @Resource
-    private AdminUserMapper adminUserMapper;
+    private final AdminUserMapper adminUserMapper;
+
+    public AdminUserServiceImpl(AdminUserMapper adminUserMapper) {
+        this.adminUserMapper = adminUserMapper;
+    }
 
     @Override
     public AdminUser login(String userName, String password) {
-        String passwordMd5 = MD5Util.MD5Encode(password, "UTF-8");
+        String passwordMd5 = MD5Util.MD5Encode(password, StandardCharsets.UTF_8.name());
         return adminUserMapper.login(userName, passwordMd5);
     }
 
@@ -28,16 +31,12 @@ public class AdminUserServiceImpl implements AdminUserService {
     @Override
     public Boolean updatePassword(Integer loginUserId, String originalPassword, String newPassword) {
         AdminUser adminUser = adminUserMapper.selectByPrimaryKey(loginUserId);
-        //当前用户非空才可以进行更改
         if (adminUser != null) {
-            String originalPasswordMd5 = MD5Util.MD5Encode(originalPassword, "UTF-8");
-            String newPasswordMd5 = MD5Util.MD5Encode(newPassword, "UTF-8");
-            //比较原密码是否正确
+            String originalPasswordMd5 = MD5Util.MD5Encode(originalPassword, StandardCharsets.UTF_8.name());
+            String newPasswordMd5 = MD5Util.MD5Encode(newPassword, StandardCharsets.UTF_8.name());
             if (originalPasswordMd5.equals(adminUser.getLoginPassword())) {
-                //设置新密码并修改
                 adminUser.setLoginPassword(newPasswordMd5);
                 if (adminUserMapper.updateByPrimaryKeySelective(adminUser) > 0) {
-                    //修改成功则返回true
                     return true;
                 }
             }
@@ -48,16 +47,14 @@ public class AdminUserServiceImpl implements AdminUserService {
     @Override
     public Boolean updateName(Integer loginUserId, String loginUserName, String nickName) {
         AdminUser adminUser = adminUserMapper.selectByPrimaryKey(loginUserId);
-        //当前用户非空才可以进行更改
         if (adminUser != null) {
-            //修改信息
             adminUser.setLoginUserName(loginUserName);
             adminUser.setNickName(nickName);
             if (adminUserMapper.updateByPrimaryKeySelective(adminUser) > 0) {
-                //修改成功则返回true
                 return true;
             }
         }
         return false;
     }
+
 }

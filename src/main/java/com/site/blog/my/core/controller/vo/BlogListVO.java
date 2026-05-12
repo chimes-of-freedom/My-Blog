@@ -7,20 +7,15 @@ import java.util.Date;
 
 public class BlogListVO implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     private Long blogId;
-
     private String blogTitle;
-
     private String blogSubUrl;
-
     private String blogCoverImage;
-
     private Integer blogCategoryId;
-
     private String blogCategoryIcon;
-
     private String blogCategoryName;
-
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date createTime;
 
@@ -87,4 +82,5 @@ public class BlogListVO implements Serializable {
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
     }
+
 }
