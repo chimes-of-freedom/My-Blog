@@ -1,6 +1,6 @@
 package com.site.blog.my.core.interceptor;
 
-import org.springframework.lang.NonNull;
+import jakarta.annotation.Nonnull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -11,9 +11,9 @@ import jakarta.servlet.http.HttpServletResponse;
 public class AdminLoginInterceptor implements HandlerInterceptor {
 
     @Override
-    public boolean preHandle(@NonNull HttpServletRequest request,
-                             @NonNull HttpServletResponse response,
-                             @NonNull Object handler) throws Exception {
+    public boolean preHandle(@Nonnull HttpServletRequest request,
+                             @Nonnull HttpServletResponse response,
+                             @Nonnull Object handler) throws Exception {
         String requestServletPath = request.getServletPath();
         if (requestServletPath.startsWith("/admin")
                 && null == request.getSession().getAttribute("loginUser")) {
